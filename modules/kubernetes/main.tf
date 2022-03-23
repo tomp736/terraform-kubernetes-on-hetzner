@@ -76,6 +76,14 @@ resource "null_resource" "install" {
   }
 }
 
+resource "null_resource" "copy_config" {
+  depends_on = [
+    null_resource.install
+  ]
+  provisioner "local-exec" {
+    command = "mkdir -p ~/.kube/config-files; scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@${local.master_ip}:.kube/config ~/.kube/config-files/${var.cluster_name}.yaml"
+  }
+}
 data "template_file" "install" {
   count    = length(local.connections)
   template = file("${path.module}/scripts/install.sh")
